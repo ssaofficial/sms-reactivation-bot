@@ -293,6 +293,9 @@ def _advance_conversation(contact: dict, intent: str, inbound_text: str,
     elif step == 4:
         # They replied to AI curiosity — send nurture, advance to step 5
         _send_ai_nurture(contact, inbound_text, history, test_mode)
+    elif step == 5:
+        # They replied after AI pitch (no_ai_tools handler) or nurture — send soft close
+        _send_soft_close(contact, test_mode)
     else:
         # Steps 6+ — LLM contextual response
         _send_contextual_response(contact, inbound_text, history, test_mode)
@@ -491,15 +494,23 @@ def _handle_objection(contact: dict, intent: str, test_mode: bool):
     for bubble, resp in zip(bubbles, responses):
         log_message(ghl_id, "outbound", bubble["text"])
 
-    from database import set_last_outbound_at
+    from database import set_last_outbound_at, get_conn
     set_last_outbound_at(ghl_id)
 
     # Add objection tag in GHL
     add_tag(ghl_id, f"objection_{handler_key}")
 
-    # Keep sequence alive — schedule next step
-    delay = TEST_MODE_DELAY if test_mode else SEQUENCE_DELAYS["ai_curiosity_delay"]
-    set_next_action(ghl_id, time.time() + delay)
+    # For no_ai_tools: advance to step 5 and clear next_action_at
+    # so the next reply goes to _advance_conversation -> soft close, not re-pitch
+    if intent == "no_ai_tools":
+        conn = get_conn()
+        conn.execute("UPDATE contacts SET sequence_step=5, next_action_at=NULL WHERE ghl_contact_id=?", (ghl_id,))
+        conn.commit()
+        conn.close()
+    else:
+        # For other objections: keep sequence alive, schedule next step
+        delay = TEST_MODE_DELAY if test_mode else SEQUENCE_DELAYS["ai_curiosity_delay"]
+        set_next_action(ghl_id, time.time() + delay)
 
 
 def _handle_terminal(contact: dict, intent: str):
