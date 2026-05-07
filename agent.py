@@ -167,9 +167,10 @@ def send_opener(ghl_contact_id: str, test_mode: bool = False):
     variant = select_variant("step_0_opener")
     bubbles = variant["bubbles"].copy()
 
-    # Inject first name
+    # Inject first name — always lowercase so validator doesn't preserve capital mid-sentence
+    first_name_lower = first_name.lower() if first_name else ""
     bubbles = [
-        {**b, "text": b["text"].replace("{first_name}", first_name).replace("{First_name}", first_name.capitalize())}
+        {**b, "text": b["text"].replace("{first_name}", first_name_lower).replace("{First_name}", first_name.capitalize())}
         for b in bubbles
     ]
 

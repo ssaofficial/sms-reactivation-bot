@@ -178,6 +178,11 @@ def run_test_mode():
     print("Delays: 5 seconds (not real timing)")
     print("="*60 + "\n")
 
+    # Kill any stale bot instance holding port 8000 before starting
+    import subprocess
+    subprocess.run("lsof -ti :8000 | xargs kill -9 2>/dev/null || true", shell=True)
+    time.sleep(1)
+
     init_db()
     initialize_variants()
 
@@ -216,6 +221,11 @@ def run_live_mode():
     print("LIVE MODE — Full production")
     print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("="*60 + "\n")
+
+    # Kill any stale bot instance holding port 8000 before starting
+    import subprocess
+    subprocess.run("lsof -ti :8000 | xargs kill -9 2>/dev/null || true", shell=True)
+    time.sleep(1)
 
     init_db()
     initialize_variants()

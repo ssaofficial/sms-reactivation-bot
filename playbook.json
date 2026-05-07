@@ -55,7 +55,7 @@
           "id": "step_0_C",
           "bubbles": [
             {"text": "quick one", "delay_seconds": 0},
-            {"text": "is this {first_name} from the tree company", "delay_seconds": 11}
+            {"text": "is this {first_name} with the tree company", "delay_seconds": 11}
           ]
         }
       ]
