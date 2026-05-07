@@ -263,11 +263,6 @@ def _advance_conversation(contact: dict, intent: str, inbound_text: str,
     step = contact.get("sequence_step", 0)
     score = contact.get("score", 0)
 
-    # Check if score threshold reached — time to close
-    if score >= SCORE_TO_BOOK_CALL:
-        _send_soft_close(contact, test_mode)
-        return
-
     # Sequence step map:
     # 0 = new contact (scheduler sends opener)
     # 1 = opener sent, waiting for reply (scheduler sends follow-ups if no reply)
@@ -296,9 +291,15 @@ def _advance_conversation(contact: dict, intent: str, inbound_text: str,
     elif step == 5:
         # They replied after AI pitch (no_ai_tools handler) or nurture — send soft close
         _send_soft_close(contact, test_mode)
-    else:
-        # Steps 6+ — LLM contextual response
+    elif step == 6:
+        # They replied to soft close — check if booking confirmed, else LLM
         _send_contextual_response(contact, inbound_text, history, test_mode)
+    else:
+        # Steps 7+ — LLM contextual response (score check applies here)
+        if score >= SCORE_TO_BOOK_CALL:
+            _send_soft_close(contact, test_mode)
+        else:
+            _send_contextual_response(contact, inbound_text, history, test_mode)
 
 
 def _send_reintro(contact: dict, test_mode: bool):
@@ -410,9 +411,22 @@ def _send_contextual_response(contact: dict, inbound_text: str,
 
     system_prompt = f"""{identity_card}
 
-You are continuing a text conversation with a tree service business owner.
-Your goal is to keep them engaged and move toward booking a strategy call.
-Do NOT offer to book the call yet unless their score is high.
+You are Alex, continuing a text conversation with a tree service business owner.
+You built an AI system specifically for tree companies: website, AI secretary, email response, business number tracking.
+Your goal is to have a real conversation and eventually get them on a 15-minute call.
+
+CRITICAL RULES:
+1. If they ask what you sell, what this is about, or what you do — ANSWER THE QUESTION FIRST.
+   Explain in 1-2 short texts: you built an AI system for tree companies (website, ai secretary, responds to emails, tracks numbers).
+   Then ask if that sounds like something worth a quick look.
+2. Do NOT repeat the booking ask if they already asked what you sell. Answer first.
+3. Do NOT drop a link unless they have agreed to a call.
+4. Do NOT mention pricing unless they ask.
+5. Max 2 bubbles per response.
+6. Each bubble is one short thought, like a real text.
+7. Lowercase. No em dashes, no en dashes, no exclamation points.
+8. Sound like a real person, not a salesperson.
+9. If they seem ready to book, ask: you free thursday or friday?
 
 Respond with a JSON object:
 {{
@@ -420,15 +434,7 @@ Respond with a JSON object:
     {{"text": "message text", "delay_seconds": 0}},
     {{"text": "second bubble if needed", "delay_seconds": 10}}
   ]
-}}
-
-Rules:
-- 1 to 3 bubbles maximum
-- Each bubble is one short thought
-- No em dashes, no en dashes, no exclamation points
-- Lowercase to start
-- Sound like a real person texting
-- Ask one question to keep the conversation going"""
+}}"""
 
     user_prompt = f"""Conversation so far:
 {history_text}

@@ -14,7 +14,8 @@ import pytz
 
 from config import (
     SEND_WINDOW_START_HOUR, SEND_WINDOW_END_HOUR,
-    SEND_BLOCKED_DAYS, MAX_NEW_CONTACTS_PER_DAY
+    SEND_BLOCKED_DAYS, MAX_NEW_CONTACTS_PER_DAY,
+    TEST_FOLLOWUP_DELAY, SEQUENCE_DELAYS
 )
 from database import (
     get_contacts_due_for_action, get_contact,
@@ -77,7 +78,7 @@ def process_contact(contact: dict):
     # in the same tick before the webhook ran. This is the definitive check.
     last_inbound = contact.get("last_inbound_at") or 0
     last_outbound = contact.get("last_outbound_at") or 0
-    if last_inbound > last_outbound and step > 0:
+    if last_inbound >= last_outbound and step > 0 and last_inbound > 0:
         logger.info(f"[SCHEDULER] {ghl_id} replied after last outbound — skipping follow-up tick")
         set_next_action(ghl_id, None)
         return
@@ -108,8 +109,34 @@ def process_contact(contact: dict):
             # AI nurture sent — send soft close
             _send_soft_close(contact, test_mode=test_mode)
 
+        elif step == 6:
+            # Soft close sent, no reply — send one final nudge then mark lost
+            ghost_attempts = contact.get("followup_attempts", 0)
+            if ghost_attempts < 1:
+                from agent import send_followup as _sf
+                # Re-use followup slot 5 as the post-close ghost nudge
+                from database import get_conn as _gc2
+                conn2 = _gc2()
+                conn2.execute("UPDATE contacts SET followup_attempts=followup_attempts+1 WHERE ghl_contact_id=?", (ghl_id,))
+                conn2.commit()
+                conn2.close()
+                from sms_client import send_sms_bubbles
+                from output_validator import validate_bubbles
+                from database import log_message, set_last_outbound_at
+                nudge = validate_bubbles([{"text": "still want me to show you what this looks like for your company?", "delay_seconds": 0}])
+                send_sms_bubbles(ghl_id, nudge, test_mode=test_mode)
+                log_message(ghl_id, "outbound", nudge[0]["text"])
+                set_last_outbound_at(ghl_id)
+                delay = TEST_FOLLOWUP_DELAY if test_mode else SEQUENCE_DELAYS.get("next_day_followup", 86400)
+                set_next_action(ghl_id, time.time() + delay)
+                logger.info(f"[SCHEDULER] {ghl_id} step=6 ghost nudge sent")
+            else:
+                update_contact_status(ghl_id, "lost")
+                set_next_action(ghl_id, None)
+                logger.info(f"[SCHEDULER] {ghl_id} marked LOST after soft close ghost")
+
         else:
-            # Steps 2, 4, 6+ — waiting for reply, nothing to schedule-send
+            # Steps 2, 4, 7+ — waiting for reply, nothing to schedule-send
             # next_action_at should have been cleared by inbound handler
             logger.info(f"[SCHEDULER] {ghl_id} step={step} — waiting for reply, clearing next_action_at")
             set_next_action(ghl_id, None)

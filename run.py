@@ -341,14 +341,21 @@ def print_stats():
 
 
 def reset_test_contacts():
-    """Remove all test contacts from the database."""
+    """Remove all test contacts from the database, including all messages and dedup fingerprints."""
     from database import init_db, get_conn
     init_db()
     conn = get_conn()
+    # Get test contact IDs first
+    test_ids = [r[0] for r in conn.execute("SELECT ghl_contact_id FROM contacts WHERE test_mode=1").fetchall()]
     deleted = conn.execute("DELETE FROM contacts WHERE test_mode=1").rowcount
+    if test_ids:
+        placeholders = ",".join("?" * len(test_ids))
+        conn.execute(f"DELETE FROM messages WHERE contact_id IN ({placeholders})", test_ids)
+        # processed_messages uses ghl_message_id not contact_id — wipe all fingerprints on test reset
+        conn.execute("DELETE FROM processed_messages")
     conn.commit()
     conn.close()
-    print(f"Removed {deleted} test contacts from database.")
+    print(f"Removed {deleted} test contacts and all associated messages/fingerprints from database.")
 
 
 def _print_live_stats():

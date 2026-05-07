@@ -78,9 +78,9 @@ async def inbound_webhook(request: Request, background_tasks: BackgroundTasks):
             return JSONResponse({"status": "duplicate", "messageId": message_id})
         mark_message_processed(message_id)
     else:
-        # No real message ID — use a 3-second window fingerprint to catch GHL double-fires
+        # No real message ID — use a 120-second window fingerprint to catch GHL double-fires
         import hashlib
-        window = int(time.time() / 3)  # 3-second bucket
+        window = int(time.time() / 120)  # 120-second bucket
         fingerprint = hashlib.md5(f"{contact_id}:{body}:{window}".encode()).hexdigest()
         if is_message_processed(fingerprint):
             logger.info(f"[WEBHOOK] Duplicate (no messageId) — fingerprint={fingerprint[:8]} — skipping")
