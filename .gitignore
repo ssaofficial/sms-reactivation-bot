@@ -5,3 +5,6 @@ __pycache__/
 *.sqlite
 logs/
 .DS_Store
+bot.log
+sms_bot.db
+/tmp/
