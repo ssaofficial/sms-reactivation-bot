@@ -43,8 +43,9 @@ SEQUENCE_DELAYS = {
     "next_day_followup": 20 * 3600,         # ~next day
 }
 
-# Test mode timing (in seconds — collapses all delays)
-TEST_MODE_DELAY = 5
+# Test mode timing (in seconds)
+TEST_MODE_DELAY = 5              # conversation reply delays (qualifier, AI curiosity, nurture)
+TEST_FOLLOWUP_DELAY = 600        # 10 minutes between no-reply follow-ups in test mode
 
 # Scoring thresholds
 SCORE_TO_BOOK_CALL = 5

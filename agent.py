@@ -15,7 +15,7 @@ from openai import OpenAI
 from config import (
     MAIN_MODEL, OPENAI_API_KEY,
     SCORE_TO_BOOK_CALL, SCORE_WEIGHTS,
-    SEQUENCE_DELAYS, TEST_MODE_DELAY,
+    SEQUENCE_DELAYS, TEST_MODE_DELAY, TEST_FOLLOWUP_DELAY,
     BUBBLE_DELAY_MIN, BUBBLE_DELAY_MAX
 )
 from database import (
@@ -196,7 +196,7 @@ def send_opener(ghl_contact_id: str, test_mode: bool = False):
     set_last_outbound_at(ghl_contact_id)
 
     # Schedule follow-up if no reply
-    delay = TEST_MODE_DELAY if test_mode else SEQUENCE_DELAYS["no_reply_attempt_1"]
+    delay = TEST_FOLLOWUP_DELAY if test_mode else SEQUENCE_DELAYS["no_reply_attempt_1"]
     set_next_action(ghl_contact_id, time.time() + delay)
     advance_sequence_step(ghl_contact_id, time.time() + delay)
 
@@ -241,11 +241,11 @@ def send_followup(ghl_contact_id: str, attempt_number: int, test_mode: bool = Fa
     ]
     if attempt_number < len(followup_keys):
         delay_key = delay_keys[min(attempt_number - 1, len(delay_keys) - 1)]
-        delay = TEST_MODE_DELAY if test_mode else SEQUENCE_DELAYS[delay_key]
+        delay = TEST_FOLLOWUP_DELAY if test_mode else SEQUENCE_DELAYS[delay_key]
         set_next_action(ghl_contact_id, time.time() + delay)
     else:
         # Final follow-up sent — mark lost after window
-        delay = TEST_MODE_DELAY if test_mode else SEQUENCE_DELAYS["no_reply_attempt_5"]
+        delay = TEST_FOLLOWUP_DELAY if test_mode else SEQUENCE_DELAYS["no_reply_attempt_5"]
         set_next_action(ghl_contact_id, time.time() + delay)
         update_contact_status(ghl_contact_id, "lost")
         add_tag(ghl_contact_id, "sms_lost")
