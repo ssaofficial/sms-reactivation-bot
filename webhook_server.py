@@ -200,7 +200,8 @@ async def performance_report():
 @app.post("/admin/add_contact")
 async def admin_add_contact(request: Request):
     """Add a contact to the bot queue (for testing or manual import)."""
-    from database import upsert_contact
+    import time
+    from database import upsert_contact, set_next_action
     from config import GHL_LOCATION_ID
     payload = await request.json()
     ghl_contact_id = payload.get("ghl_contact_id")
@@ -208,6 +209,8 @@ async def admin_add_contact(request: Request):
     first_name = payload.get("first_name", "")
     test_mode = payload.get("test_mode", False)
     location_id = payload.get("location_id") or GHL_LOCATION_ID
+    # delay_seconds: how many seconds until the opener fires (default 5 for test, 10 for live)
+    delay_seconds = payload.get("delay_seconds", 5 if test_mode else 10)
     if not ghl_contact_id or not phone:
         return {"error": "ghl_contact_id and phone are required"}
     upsert_contact(
@@ -217,7 +220,9 @@ async def admin_add_contact(request: Request):
         location_id=location_id,
         test_mode=1 if test_mode else 0
     )
-    return {"status": "ok", "ghl_contact_id": ghl_contact_id, "phone": phone, "test_mode": test_mode}
+    # Schedule the opener to fire immediately (or after delay_seconds)
+    set_next_action(ghl_contact_id, time.time() + delay_seconds)
+    return {"status": "ok", "ghl_contact_id": ghl_contact_id, "phone": phone, "test_mode": test_mode, "fires_in_seconds": delay_seconds}
 
 
 def start_webhook_server():
