@@ -30,15 +30,17 @@ SEND_BLOCKED_DAYS = [6]      # 0=Monday, 6=Sunday — block Sunday
 MAX_NEW_CONTACTS_PER_DAY = 200
 
 # Sequence timing (in seconds — real mode)
+# No-reply follow-up cadence: 12h -> 24h -> 12h -> 24h -> 24h
+# Total window before marking LOST: ~4 days
 SEQUENCE_DELAYS = {
-    "no_reply_attempt_1": 2 * 24 * 3600,   # 2 days
-    "no_reply_attempt_2": 2 * 24 * 3600,   # 2 days
-    "no_reply_attempt_3": 3 * 24 * 3600,   # 3 days
-    "no_reply_attempt_4": 3 * 24 * 3600,   # 3 days
-    "no_reply_attempt_5": 2 * 24 * 3600,   # 2 days (final)
+    "no_reply_attempt_1": 12 * 3600,        # 12 hours after opener
+    "no_reply_attempt_2": 24 * 3600,        # 24 hours after attempt 1
+    "no_reply_attempt_3": 12 * 3600,        # 12 hours after attempt 2
+    "no_reply_attempt_4": 24 * 3600,        # 24 hours after attempt 3
+    "no_reply_attempt_5": 24 * 3600,        # 24 hours after attempt 4 (final)
     "qualifier_delay": 45 * 60,             # 45 mins after positive reply
     "ai_curiosity_delay": 45 * 60,          # 45 mins
-    "next_day_followup": 20 * 3600,         # next day
+    "next_day_followup": 20 * 3600,         # ~next day
 }
 
 # Test mode timing (in seconds — collapses all delays)
