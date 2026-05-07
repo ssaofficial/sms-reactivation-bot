@@ -181,8 +181,14 @@ def run_test_mode():
 
     # Kill any stale bot instance holding port 8000 before starting
     import subprocess
-    subprocess.run("lsof -ti :8000 | xargs kill -9 2>/dev/null || true", shell=True)
+    subprocess.run("fuser -k 8000/tcp 2>/dev/null || pkill -f 'run.py' 2>/dev/null || true", shell=True)
     time.sleep(1)
+
+    # Ensure DB directory exists (needed on Render with mounted disk)
+    from config import DB_PATH
+    _db_dir = os.path.dirname(DB_PATH)
+    if _db_dir:
+        os.makedirs(_db_dir, exist_ok=True)
 
     init_db()
     initialize_variants()
@@ -228,8 +234,14 @@ def run_live_mode():
 
     # Kill any stale bot instance holding port 8000 before starting
     import subprocess
-    subprocess.run("lsof -ti :8000 | xargs kill -9 2>/dev/null || true", shell=True)
+    subprocess.run("fuser -k 8000/tcp 2>/dev/null || pkill -f 'run.py' 2>/dev/null || true", shell=True)
     time.sleep(1)
+
+    # Ensure DB directory exists (needed on Render with mounted disk)
+    from config import DB_PATH
+    _db_dir = os.path.dirname(DB_PATH)
+    if _db_dir:
+        os.makedirs(_db_dir, exist_ok=True)
 
     init_db()
     initialize_variants()
