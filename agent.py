@@ -140,6 +140,9 @@ def handle_inbound(ghl_contact_id: str, inbound_text: str) -> bool:
             _handle_terminal(contact, intent)
         elif intent == "wants_to_book":
             _handle_booking_request(contact, test_mode)
+        elif intent == "no_ai_tools":
+            # Treat as objection-style handler but it's actually an opportunity
+            _handle_objection(contact, intent, test_mode)
         elif is_objection(intent):
             _handle_objection(contact, intent, test_mode)
         else:
@@ -469,6 +472,7 @@ def _handle_objection(contact: dict, intent: str, test_mode: bool):
         "objection_fully_booked": "fully_booked",
         "objection_are_you_bot": "are_you_a_bot",
         "objection_send_info": "send_me_info",
+        "no_ai_tools": "no_ai_tools",
     }
 
     handler_key = intent_to_key.get(intent)

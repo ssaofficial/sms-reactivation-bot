@@ -17,6 +17,7 @@ INTENT_LABELS = [
     "confirmed_yes",          # Confirmed they still run tree biz / said yes
     "confirmed_no",           # No longer in business / sold / retired
     "positive_curious",       # Expressed interest or curiosity (not full yes)
+    "no_ai_tools",            # Says they have no AI tools / haven't used AI (opportunity signal)
     "objection_tried_ads",    # Tried ads before and it didn't work
     "objection_too_busy",     # Too busy right now
     "objection_cost",         # Asking about price / cost
@@ -24,7 +25,7 @@ INTENT_LABELS = [
     "objection_fully_booked", # Already fully booked / too much work
     "objection_are_you_bot",  # Asking if this is a bot or automated
     "objection_send_info",    # Asking to send info/email instead of call
-    "not_interested",         # Explicitly not interested
+    "not_interested",         # Explicitly not interested — ONLY use when they say stop/no thanks/leave me alone
     "wants_to_book",          # Ready to book a call
     "question_about_service", # Asking a specific question about what you do
     "neutral_reply",          # Replied but unclear intent — continue sequence
@@ -50,6 +51,7 @@ Intent labels:
 - confirmed_yes: person confirmed they still run tree biz or said yes to a question
 - confirmed_no: person said they are no longer in business
 - positive_curious: interested or curious but not fully committed
+- no_ai_tools: person says they have NO AI tools, haven't used AI, or says 'nope/no/not really' when asked about AI usage. This is an OPPORTUNITY, not a rejection. Use this when the bot just asked about AI tools.
 - objection_tried_ads: mentions trying ads before that didn't work
 - objection_too_busy: says they are too busy
 - objection_cost: asking about price or cost
@@ -57,7 +59,7 @@ Intent labels:
 - objection_fully_booked: says they are fully booked or overwhelmed with work
 - objection_are_you_bot: asking if this is a bot or automated
 - objection_send_info: wants info sent to them instead of a call
-- not_interested: explicitly says not interested or to stop
+- not_interested: ONLY use when person explicitly says 'not interested', 'stop texting', 'leave me alone', 'no thanks', or similar opt-out language. A simple 'no' or 'nope' in response to a question is NOT not_interested.
 - wants_to_book: ready to schedule a call
 - question_about_service: asking what you do or how it works
 - neutral_reply: replied but intent is unclear
@@ -66,6 +68,7 @@ Intent labels:
 - already_client: says they are already working with you
 - no_longer_tree: no longer in tree business
 
+CRITICAL: Context matters. If the bot just asked 'are you using any AI tools?' and the person says 'nope', 'no', 'not really', 'haven't', that is no_ai_tools NOT not_interested.
 Be decisive. Pick the single best label. Never return multiple labels."""
 
 
@@ -123,6 +126,7 @@ def is_positive_intent(intent: str) -> bool:
     positive_intents = {
         "confirmed_yes",
         "positive_curious",
+        "no_ai_tools",
         "wants_to_book",
         "question_about_service",
         "neutral_reply"

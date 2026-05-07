@@ -191,6 +191,14 @@
   },
 
   "objection_handlers": {
+    "no_ai_tools": {
+      "intent_keywords": ["nope", "no", "haven't", "not really", "nothing", "not using"],
+      "bubbles": [
+        {"text": "past 8 months i have been building an ai specifically for tree companies", "delay_seconds": 0},
+        {"text": "website, ai secretary, responds to emails, tracks all your numbers", "delay_seconds": 11},
+        {"text": "you don't have any of that right now?", "delay_seconds": 9}
+      ]
+    },
     "tried_ads_before": {
       "intent_keywords": ["tried ads", "waste of money", "didn't work", "facebook ads", "google ads", "burned"],
       "bubbles": [
