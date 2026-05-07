@@ -47,7 +47,9 @@ async def inbound_webhook(request: Request, background_tasks: BackgroundTasks):
 
     # Extract fields from GHL webhook payload
     # GHL InboundMessage webhook format:
-    message_id = payload.get("messageId") or payload.get("id", "")
+    raw_message_id = payload.get("messageId") or payload.get("id", "")
+    # GHL sometimes sends messageId as the string "null" — treat that as no ID
+    message_id = raw_message_id if (raw_message_id and str(raw_message_id).lower() != "null") else ""
     contact_id = (
         payload.get("contactId") or
         payload.get("contact", {}).get("id", "")
@@ -68,13 +70,23 @@ async def inbound_webhook(request: Request, background_tasks: BackgroundTasks):
         return JSONResponse({"status": "ignored", "reason": "missing fields"})
 
     # Idempotency check — ignore duplicate webhook fires
-    if message_id and is_message_processed(message_id):
-        logger.info(f"[WEBHOOK] Already processed messageId={message_id} — skipping")
-        return JSONResponse({"status": "duplicate", "messageId": message_id})
-
-    # Mark as processed immediately
+    # When GHL sends messageId="null", fall back to a body+contact+timestamp fingerprint
+    # to deduplicate rapid double-fires without blocking distinct real messages.
     if message_id:
+        if is_message_processed(message_id):
+            logger.info(f"[WEBHOOK] Already processed messageId={message_id} — skipping")
+            return JSONResponse({"status": "duplicate", "messageId": message_id})
         mark_message_processed(message_id)
+    else:
+        # No real message ID — use a 3-second window fingerprint to catch GHL double-fires
+        import hashlib
+        window = int(time.time() / 3)  # 3-second bucket
+        fingerprint = hashlib.md5(f"{contact_id}:{body}:{window}".encode()).hexdigest()
+        if is_message_processed(fingerprint):
+            logger.info(f"[WEBHOOK] Duplicate (no messageId) — fingerprint={fingerprint[:8]} — skipping")
+            return JSONResponse({"status": "duplicate", "fingerprint": fingerprint[:8]})
+        mark_message_processed(fingerprint)
+        logger.info(f"[WEBHOOK] No messageId from GHL — using fingerprint dedup: {fingerprint[:8]}")
 
     # CRITICAL: Set last_inbound_at and clear next_action_at IMMEDIATELY on inbound reply
     # This prevents the race condition where follow-ups fire after a reply arrives.

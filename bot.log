@@ -257,3 +257,5 @@
 2026-05-07 02:03:52,444 [INFO] [SMS] Sending bubble 1/2: we spoke a while back
 2026-05-07 02:03:55,000 [INFO] [SMS] Waiting 2s before bubble 2
 2026-05-07 02:03:57,000 [INFO] [SMS] Sending bubble 2/2: still in the tree biz?
+2026-05-07 02:06:38,891 [INFO] [WEBHOOK] Inbound payload received: {'contactId': 'hIzDqdWWC458rzNA3LKg', 'messageId': 'null', 'body': 'Yes I am bro', 'type': 'SMS'}
+2026-05-07 02:06:38,892 [INFO] [WEBHOOK] Already processed messageId=null — skipping
