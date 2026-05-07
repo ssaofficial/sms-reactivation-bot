@@ -179,11 +179,6 @@ def run_test_mode():
     print("Delays: 5 seconds (not real timing)")
     print("="*60 + "\n")
 
-    # Kill any stale bot instance holding port 8000 before starting
-    import subprocess
-    subprocess.run("fuser -k 8000/tcp 2>/dev/null || pkill -f 'run.py' 2>/dev/null || true", shell=True)
-    time.sleep(1)
-
     # Ensure DB directory exists (needed on Render with mounted disk)
     from config import DB_PATH
     _db_dir = os.path.dirname(DB_PATH)
@@ -231,11 +226,6 @@ def run_live_mode():
     print("LIVE MODE — Full production")
     print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("="*60 + "\n")
-
-    # Kill any stale bot instance holding port 8000 before starting
-    import subprocess
-    subprocess.run("fuser -k 8000/tcp 2>/dev/null || pkill -f 'run.py' 2>/dev/null || true", shell=True)
-    time.sleep(1)
 
     # Ensure DB directory exists (needed on Render with mounted disk)
     from config import DB_PATH

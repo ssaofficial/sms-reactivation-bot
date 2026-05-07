@@ -5,6 +5,7 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: python run.py --mode live
     plan: starter
+    healthCheckPath: /health
     envVars:
       - key: GHL_BRIDGE_URL
         sync: false
