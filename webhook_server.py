@@ -197,6 +197,26 @@ async def performance_report():
     return {"report": get_performance_report()}
 
 
+@app.post("/admin/add_contact")
+async def admin_add_contact(request: Request):
+    """Add a contact to the bot queue (for testing or manual import)."""
+    from database import get_conn, upsert_contact
+    payload = await request.json()
+    ghl_contact_id = payload.get("ghl_contact_id")
+    phone = payload.get("phone")
+    first_name = payload.get("first_name", "")
+    test_mode = payload.get("test_mode", False)
+    if not ghl_contact_id or not phone:
+        return {"error": "ghl_contact_id and phone are required"}
+    upsert_contact(
+        ghl_contact_id=ghl_contact_id,
+        phone=phone,
+        first_name=first_name,
+        test_mode=1 if test_mode else 0
+    )
+    return {"status": "ok", "ghl_contact_id": ghl_contact_id, "phone": phone, "test_mode": test_mode}
+
+
 def start_webhook_server():
     """Start the webhook server."""
     init_db()
