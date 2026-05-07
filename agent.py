@@ -265,30 +265,38 @@ def _advance_conversation(contact: dict, intent: str, inbound_text: str,
         _send_soft_close(contact, test_mode)
         return
 
-    # Map sequence step to next action
+    # Sequence step map:
+    # 0 = new contact (scheduler sends opener)
+    # 1 = opener sent, waiting for reply (scheduler sends follow-ups if no reply)
+    # 2 = reintro sent, waiting for qualifier reply ("still in tree biz?")
+    # 3 = qualifier confirmed — scheduler sends AI curiosity
+    # 4 = AI curiosity sent, waiting for reply
+    # 5 = scheduler sends soft close / nurture
+    # 6+ = LLM contextual responses
+
     if step <= 1:
-        # They replied to opener — send reintro + qualifier
+        # They replied to opener — send reintro, move to step 2 (wait for qualifier reply)
         _send_reintro(contact, test_mode)
     elif step == 2:
-        # They confirmed tree biz — plant AI curiosity (with 45 min delay)
+        # They confirmed tree biz — schedule AI curiosity via scheduler, advance to step 3
         delay = TEST_MODE_DELAY if test_mode else SEQUENCE_DELAYS["qualifier_delay"]
-        set_next_action(ghl_id, time.time() + delay)
-        # Flag for scheduler to send AI curiosity step
-        from database import get_conn
+        from database import get_conn, set_last_outbound_at
+        set_last_outbound_at(ghl_id)  # prevent race condition guard from blocking scheduler
         conn = get_conn()
         conn.execute("UPDATE contacts SET sequence_step=3 WHERE ghl_contact_id=?", (ghl_id,))
         conn.commit()
         conn.close()
-    elif step == 3:
-        # They replied to AI curiosity — generate contextual nurture response
+        set_next_action(ghl_id, time.time() + delay)
+    elif step == 4:
+        # They replied to AI curiosity — send nurture, advance to step 5
         _send_ai_nurture(contact, inbound_text, history, test_mode)
     else:
-        # Later steps — generate contextual LLM response
+        # Steps 6+ — LLM contextual response
         _send_contextual_response(contact, inbound_text, history, test_mode)
 
 
 def _send_reintro(contact: dict, test_mode: bool):
-    """Send the reintro + qualifier after opener reply."""
+    """Send the reintro + qualifier after opener reply. Advances to step 2 (wait for qualifier reply)."""
     ghl_id = contact["ghl_contact_id"]
     variant = select_variant("step_1_reintro")
     bubbles = validate_bubbles(variant["bubbles"])
@@ -299,17 +307,18 @@ def _send_reintro(contact: dict, test_mode: bool):
 
     from optimizer import record_send
     record_send(variant["id"])
-    from database import set_last_outbound_at
+    from database import set_last_outbound_at, get_conn
     set_last_outbound_at(ghl_id)
 
-    # Schedule qualifier delay
-    delay = TEST_MODE_DELAY if test_mode else SEQUENCE_DELAYS["qualifier_delay"]
-    set_next_action(ghl_id, time.time() + delay)
-    advance_sequence_step(ghl_id, time.time() + delay)
+    # Advance to step 2 and CLEAR next_action_at — wait for their reply, no scheduler action
+    conn = get_conn()
+    conn.execute("UPDATE contacts SET sequence_step=2, next_action_at=NULL WHERE ghl_contact_id=?", (ghl_id,))
+    conn.commit()
+    conn.close()
 
 
 def _send_ai_curiosity(contact: dict, test_mode: bool):
-    """Send the AI curiosity plant message."""
+    """Send the AI curiosity plant message. Advances to step 4 (wait for reply)."""
     ghl_id = contact["ghl_contact_id"]
     variant = select_variant("step_2_ai_curiosity")
     bubbles = validate_bubbles(variant["bubbles"])
@@ -320,11 +329,14 @@ def _send_ai_curiosity(contact: dict, test_mode: bool):
 
     from optimizer import record_send
     record_send(variant["id"])
-    from database import set_last_outbound_at
+    from database import set_last_outbound_at, get_conn
     set_last_outbound_at(ghl_id)
 
-    delay = TEST_MODE_DELAY if test_mode else SEQUENCE_DELAYS["ai_curiosity_delay"]
-    set_next_action(ghl_id, time.time() + delay)
+    # Advance to step 4 and CLEAR next_action_at — wait for their reply
+    conn = get_conn()
+    conn.execute("UPDATE contacts SET sequence_step=4, next_action_at=NULL WHERE ghl_contact_id=?", (ghl_id,))
+    conn.commit()
+    conn.close()
 
 
 def _send_ai_nurture(contact: dict, inbound_text: str, history: list, test_mode: bool):
@@ -341,16 +353,20 @@ def _send_ai_nurture(contact: dict, inbound_text: str, history: list, test_mode:
 
     from optimizer import record_send
     record_send(variant["id"])
-    from database import set_last_outbound_at
+    from database import set_last_outbound_at, get_conn
     set_last_outbound_at(ghl_id)
 
+    # Advance to step 5 and schedule soft close via scheduler
     delay = TEST_MODE_DELAY if test_mode else SEQUENCE_DELAYS["next_day_followup"]
+    conn = get_conn()
+    conn.execute("UPDATE contacts SET sequence_step=5 WHERE ghl_contact_id=?", (ghl_id,))
+    conn.commit()
+    conn.close()
     set_next_action(ghl_id, time.time() + delay)
-    advance_sequence_step(ghl_id, time.time() + delay)
 
 
 def _send_soft_close(contact: dict, test_mode: bool):
-    """Send the soft close / booking ask."""
+    """Send the soft close / booking ask. Advances to step 6 (wait for reply)."""
     ghl_id = contact["ghl_contact_id"]
     variant = select_variant("step_4_soft_close")
     bubbles = validate_bubbles(variant["bubbles"])
@@ -364,8 +380,14 @@ def _send_soft_close(contact: dict, test_mode: bool):
 
     from optimizer import record_send
     record_send(variant["id"])
-    from database import set_last_outbound_at
+    from database import set_last_outbound_at, get_conn
     set_last_outbound_at(ghl_id)
+
+    # Advance to step 6 and CLEAR next_action_at — wait for their reply
+    conn = get_conn()
+    conn.execute("UPDATE contacts SET sequence_step=6, next_action_at=NULL WHERE ghl_contact_id=?", (ghl_id,))
+    conn.commit()
+    conn.close()
 
 
 def _send_contextual_response(contact: dict, inbound_text: str,

@@ -86,24 +86,33 @@ def process_contact(contact: dict):
 
     try:
         if step == 0:
-            # Send opener
+            # New contact — send opener
             send_opener(ghl_id, test_mode=test_mode)
             increment_daily_count()
 
+        elif step == 1:
+            # Opener sent, no reply yet — send no-reply follow-ups
+            if followup_attempts < 4:
+                send_followup(ghl_id, attempt_number=followup_attempts + 1, test_mode=test_mode)
+                increment_daily_count()
+            else:
+                update_contact_status(ghl_id, "lost")
+                set_next_action(ghl_id, None)
+                logger.info(f"[SCHEDULER] {ghl_id} marked LOST after max follow-ups")
+
         elif step == 3:
-            # Send AI curiosity (scheduled after qualifier confirmation)
+            # Qualifier confirmed — send AI curiosity plant
             _send_ai_curiosity(contact, test_mode=test_mode)
 
-        elif followup_attempts < 4:
-            # Send follow-up
-            send_followup(ghl_id, attempt_number=followup_attempts + 1, test_mode=test_mode)
-            increment_daily_count()
+        elif step == 5:
+            # AI nurture sent — send soft close
+            _send_soft_close(contact, test_mode=test_mode)
 
         else:
-            # Max follow-ups reached
-            update_contact_status(ghl_id, "lost")
+            # Steps 2, 4, 6+ — waiting for reply, nothing to schedule-send
+            # next_action_at should have been cleared by inbound handler
+            logger.info(f"[SCHEDULER] {ghl_id} step={step} — waiting for reply, clearing next_action_at")
             set_next_action(ghl_id, None)
-            logger.info(f"[SCHEDULER] {ghl_id} marked LOST after max follow-ups")
 
     except Exception as e:
         logger.error(f"[SCHEDULER] Error processing {ghl_id}: {e}")
