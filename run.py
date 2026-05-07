@@ -13,6 +13,7 @@ Usage:
 
 import argparse
 import logging
+import os
 import time
 import sys
 import threading
@@ -191,12 +192,15 @@ def run_test_mode():
     print("Scheduler started (10s polling)")
 
     # Start webhook server in background
+    # Render sets PORT env var; fall back to WEBHOOK_PORT for local/test
+    _port = int(os.environ.get("PORT", 8000))
+
     def run_server():
-        uvicorn.run(app, host="0.0.0.0", port=8000, log_level="warning")
+        uvicorn.run(app, host="0.0.0.0", port=_port, log_level="warning")
 
     server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()
-    print("Webhook server started on port 8000")
+    print(f"Webhook server started on port {_port}")
     print("\nBot is running. Text back from your test number to test inbound handling.")
     print("Press Ctrl+C to stop.\n")
 
@@ -233,12 +237,14 @@ def run_live_mode():
     sched_thread = start_scheduler(interval_seconds=60)
     print("Scheduler started (60s polling)")
 
+    _port = int(os.environ.get("PORT", 8000))
+
     def run_server():
-        uvicorn.run(app, host="0.0.0.0", port=8000, log_level="warning")
+        uvicorn.run(app, host="0.0.0.0", port=_port, log_level="warning")
 
     server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()
-    print("Webhook server started on port 8000")
+    print(f"Webhook server started on port {_port}")
     print("\nBot is running in LIVE mode. Press Ctrl+C to stop.\n")
 
     try:

@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: sms-reactivation-bot
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python run.py --mode live
+    plan: starter
+    envVars:
+      - key: GHL_BRIDGE_URL
+        sync: false
+      - key: GHL_BEARER_TOKEN
+        sync: false
+      - key: GHL_LOCATION_ID
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: WEBHOOK_SECRET
+        sync: false
+      - key: RENDER_DISK_PATH
+        value: /data
+    disk:
+      name: bot-data
+      mountPath: /data
+      sizeGB: 1

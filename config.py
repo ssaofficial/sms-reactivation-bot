@@ -77,7 +77,8 @@ WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "")
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 # Database
-DB_PATH = "sms_bot.db"
+# On Render, use the persistent disk mount path; locally use current dir
+DB_PATH = os.path.join(os.environ.get("RENDER_DISK_PATH", "."), "sms_bot.db")
 
 # Inbound message batching window (seconds) — prevents double-response on rapid texts
 INBOUND_BATCH_WINDOW = 60
