@@ -72,6 +72,16 @@ def process_contact(contact: dict):
         set_next_action(ghl_id, None)
         return
 
+    # RACE CONDITION GUARD: If contact replied after last outbound, skip this tick.
+    # The webhook already cleared next_action_at, but scheduler may have grabbed contact
+    # in the same tick before the webhook ran. This is the definitive check.
+    last_inbound = contact.get("last_inbound_at") or 0
+    last_outbound = contact.get("last_outbound_at") or 0
+    if last_inbound > last_outbound and step > 0:
+        logger.info(f"[SCHEDULER] {ghl_id} replied after last outbound — skipping follow-up tick")
+        set_next_action(ghl_id, None)
+        return
+
     logger.info(f"[SCHEDULER] Processing {ghl_id} | step={step} | attempts={followup_attempts}")
 
     try:
@@ -101,22 +111,36 @@ def process_contact(contact: dict):
 
 def run_scheduler_tick():
     """Single scheduler tick — check for due contacts and process them."""
-    if not is_within_send_window():
-        logger.debug("[SCHEDULER] Outside send window — skipping tick")
-        return
-
-    daily_count = get_daily_count()
-    if daily_count >= MAX_NEW_CONTACTS_PER_DAY:
-        logger.info(f"[SCHEDULER] Daily cap reached ({daily_count}) — skipping tick")
-        return
-
     due_contacts = get_contacts_due_for_action()
     if not due_contacts:
         return
 
-    logger.info(f"[SCHEDULER] {len(due_contacts)} contacts due for action")
+    # Separate test contacts (bypass send window + daily cap) from live contacts
+    test_contacts = [c for c in due_contacts if c.get("test_mode")]
+    live_contacts = [c for c in due_contacts if not c.get("test_mode")]
 
-    for contact in due_contacts:
+    # Always process test contacts immediately
+    for contact in test_contacts:
+        logger.info(f"[SCHEDULER] [TEST] Processing {contact['ghl_contact_id']}")
+        process_contact(contact)
+        time.sleep(1)
+
+    # For live contacts, enforce send window and daily cap
+    if not live_contacts:
+        return
+
+    if not is_within_send_window():
+        logger.debug("[SCHEDULER] Outside send window — skipping live contacts")
+        return
+
+    daily_count = get_daily_count()
+    if daily_count >= MAX_NEW_CONTACTS_PER_DAY:
+        logger.info(f"[SCHEDULER] Daily cap reached ({daily_count}) — skipping live contacts")
+        return
+
+    logger.info(f"[SCHEDULER] {len(live_contacts)} live contacts due for action")
+
+    for contact in live_contacts:
         if get_daily_count() >= MAX_NEW_CONTACTS_PER_DAY:
             logger.info("[SCHEDULER] Daily cap hit mid-batch — stopping")
             break

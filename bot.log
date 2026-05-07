@@ -78,3 +78,182 @@
 2026-05-07 00:55:34,996 [INFO] [OPTIMIZER] Selected variant step_1_A for step step_1_reintro (alpha=1.00, beta=1.00)
 2026-05-07 00:55:34,997 [INFO] [OPTIMIZER] Selected variant step_2_A for step step_2_ai_curiosity (alpha=1.00, beta=1.00)
 2026-05-07 00:55:34,997 [INFO] [OPTIMIZER] Selected variant step_4_B for step step_4_soft_close (alpha=1.00, beta=1.00)
+2026-05-07 01:31:37,736 [INFO] [OPTIMIZER] Initialized 12 variants
+2026-05-07 01:31:42,970 [INFO] [OPTIMIZER] Initialized 12 variants
+2026-05-07 01:32:02,079 [INFO] [OPTIMIZER] Initialized 12 variants
+2026-05-07 01:32:52,402 [INFO] [OPTIMIZER] Initialized 12 variants
+2026-05-07 01:32:52,402 [INFO] [SCHEDULER] Started — polling every 10s
+2026-05-07 01:34:27,574 [INFO] [OPTIMIZER] Initialized 12 variants
+2026-05-07 01:34:27,574 [INFO] [SCHEDULER] Started — polling every 10s
+2026-05-07 01:34:27,576 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 01:34:27,576 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=0 | attempts=0
+2026-05-07 01:34:27,584 [INFO] [OPTIMIZER] Selected variant step_0_A for step step_0_opener (alpha=1.00, beta=1.00)
+2026-05-07 01:34:27,584 [INFO] [VALIDATOR] Cleaned: 'Alex?' -> 'alex?'
+2026-05-07 01:34:27,585 [INFO] [AGENT] Sending opener to hIzDqdWWC458rzNA3LKg (variant=step_0_A, test=True)
+2026-05-07 01:34:33,785 [INFO] [SMS] Sending bubble 1/2: alex?
+2026-05-07 01:34:42,505 [INFO] [SMS] Waiting 2s before bubble 2
+2026-05-07 01:34:44,505 [INFO] [SMS] Sending bubble 2/2: hey it's alex
+2026-05-07 01:35:04,779 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 01:35:04,779 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=1 | attempts=0
+2026-05-07 01:35:04,779 [INFO] [AGENT] Sending follow-up #1 to hIzDqdWWC458rzNA3LKg
+2026-05-07 01:35:11,106 [INFO] [SMS] Sending bubble 1/2: hey
+2026-05-07 01:35:17,869 [INFO] [SMS] Waiting 2s before bubble 2
+2026-05-07 01:35:19,869 [INFO] [SMS] Sending bubble 2/2: wanted to make sure this got to you
+2026-05-07 01:35:40,029 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 01:35:40,029 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=1 | attempts=1
+2026-05-07 01:35:40,030 [INFO] [AGENT] Sending follow-up #2 to hIzDqdWWC458rzNA3LKg
+2026-05-07 01:35:46,030 [INFO] [SMS] Sending bubble 1/1: still running the tree company
+2026-05-07 01:36:04,981 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 01:36:04,981 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=1 | attempts=2
+2026-05-07 01:36:04,982 [INFO] [AGENT] Sending follow-up #3 to hIzDqdWWC458rzNA3LKg
+2026-05-07 01:36:10,619 [INFO] [SMS] Sending bubble 1/3: hey
+2026-05-07 01:36:17,892 [INFO] [SMS] Waiting 2s before bubble 2
+2026-05-07 01:36:19,892 [INFO] [SMS] Sending bubble 2/3: i will leave you alone after this
+2026-05-07 01:36:27,910 [INFO] [SMS] Waiting 2s before bubble 3
+2026-05-07 01:36:29,910 [INFO] [SMS] Sending bubble 3/3: just wanted to see if lead flow was something you 
+2026-05-07 01:36:47,896 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 01:36:47,896 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=1 | attempts=3
+2026-05-07 01:36:47,896 [INFO] [AGENT] Sending follow-up #4 to hIzDqdWWC458rzNA3LKg
+2026-05-07 01:36:53,921 [INFO] [SMS] Sending bubble 1/2: closing your file out
+2026-05-07 01:37:01,163 [INFO] [SMS] Waiting 2s before bubble 2
+2026-05-07 01:37:03,163 [INFO] [SMS] Sending bubble 2/2: if things change you know where to find me
+2026-05-07 01:37:43,822 [INFO] [OPTIMIZER] Initialized 12 variants
+2026-05-07 01:37:43,822 [INFO] [SCHEDULER] Started — polling every 10s
+2026-05-07 01:37:43,824 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 01:37:43,824 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=0 | attempts=0
+2026-05-07 01:37:43,832 [INFO] [OPTIMIZER] Selected variant step_0_B for step step_0_opener (alpha=1.00, beta=1.00)
+2026-05-07 01:37:43,832 [INFO] [AGENT] Sending opener to hIzDqdWWC458rzNA3LKg (variant=step_0_B, test=True)
+2026-05-07 01:37:46,972 [INFO] [SMS] Sending bubble 1/2: hey
+2026-05-07 01:37:49,891 [INFO] [SMS] Waiting 2s before bubble 2
+2026-05-07 01:37:51,892 [INFO] [SMS] Sending bubble 2/2: is this Alex
+2026-05-07 01:38:06,676 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 01:38:06,676 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=1 | attempts=0
+2026-05-07 01:38:06,677 [INFO] [AGENT] Sending follow-up #1 to hIzDqdWWC458rzNA3LKg
+2026-05-07 01:38:10,107 [INFO] [SMS] Sending bubble 1/2: hey
+2026-05-07 01:38:13,475 [INFO] [SMS] Waiting 2s before bubble 2
+2026-05-07 01:38:15,476 [INFO] [SMS] Sending bubble 2/2: wanted to make sure this got to you
+2026-05-07 01:38:16,204 [INFO] [WEBHOOK] Inbound payload received: {'contactId': 'hIzDqdWWC458rzNA3LKg', 'messageId': 'null', 'body': 'Yes who is this', 'type': 'SMS'}
+2026-05-07 01:38:30,803 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 01:38:30,803 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=1 | attempts=1
+2026-05-07 01:38:30,803 [INFO] [AGENT] Sending follow-up #2 to hIzDqdWWC458rzNA3LKg
+2026-05-07 01:38:34,014 [INFO] [SMS] Sending bubble 1/1: still running the tree company
+2026-05-07 01:38:48,092 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 01:38:48,092 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=1 | attempts=2
+2026-05-07 01:38:48,093 [INFO] [AGENT] Sending follow-up #3 to hIzDqdWWC458rzNA3LKg
+2026-05-07 01:38:48,214 [INFO] [WEBHOOK] Inbound payload received: {'contactId': 'hIzDqdWWC458rzNA3LKg', 'messageId': 'null', 'body': 'Got what to me? Yes I am', 'type': 'SMS'}
+2026-05-07 01:38:48,215 [INFO] [WEBHOOK] Already processed messageId=null — skipping
+2026-05-07 01:38:51,880 [INFO] [SMS] Sending bubble 1/3: hey
+2026-05-07 01:38:55,672 [INFO] [SMS] Waiting 2s before bubble 2
+2026-05-07 01:38:57,673 [INFO] [SMS] Sending bubble 2/3: i will leave you alone after this
+2026-05-07 01:39:01,103 [INFO] [SMS] Waiting 2s before bubble 3
+2026-05-07 01:39:03,104 [INFO] [SMS] Sending bubble 3/3: just wanted to see if lead flow was something you 
+2026-05-07 01:39:16,209 [INFO] [WEBHOOK] Processing batched message for hIzDqdWWC458rzNA3LKg: 'Yes who is this'
+2026-05-07 01:39:17,852 [INFO] HTTP Request: POST https://api.manus.im/api/llm-proxy/v1/chat/completions "HTTP/1.1 200 OK"
+2026-05-07 01:39:17,858 [INFO] [CLASSIFIER] 'Yes who is this' -> confirmed_yes (0.9)
+2026-05-07 01:39:17,858 [INFO] [AGENT] hIzDqdWWC458rzNA3LKg | intent=confirmed_yes | sentiment=neutral
+2026-05-07 01:39:17,863 [INFO] [OPTIMIZER] Selected variant step_1_B for step step_1_reintro (alpha=1.00, beta=1.00)
+2026-05-07 01:39:21,581 [INFO] [SMS] Sending bubble 1/2: this is alex from increase roas
+2026-05-07 01:39:24,781 [INFO] [SMS] Waiting 2s before bubble 2
+2026-05-07 01:39:26,782 [INFO] [SMS] Sending bubble 2/2: still in the tree business
+2026-05-07 01:39:37,871 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 01:39:37,871 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=2 | attempts=3
+2026-05-07 01:39:37,871 [INFO] [AGENT] Sending follow-up #4 to hIzDqdWWC458rzNA3LKg
+2026-05-07 01:39:40,485 [INFO] [SMS] Sending bubble 1/2: closing your file out
+2026-05-07 01:39:44,726 [INFO] [SMS] Waiting 2s before bubble 2
+2026-05-07 01:39:46,727 [INFO] [SMS] Sending bubble 2/2: if things change you know where to find me
+2026-05-07 01:39:51,090 [INFO] [WEBHOOK] Inbound payload received: {'contactId': 'hIzDqdWWC458rzNA3LKg', 'messageId': 'null', 'body': 'What are u selling', 'type': 'SMS'}
+2026-05-07 01:39:51,091 [INFO] [WEBHOOK] Already processed messageId=null — skipping
+2026-05-07 01:40:42,487 [INFO] [WEBHOOK] Inbound payload received: {'contactId': 'hIzDqdWWC458rzNA3LKg', 'messageId': 'null', 'body': 'Huh?', 'type': 'SMS'}
+2026-05-07 01:40:42,487 [INFO] [WEBHOOK] Already processed messageId=null — skipping
+2026-05-07 01:49:52,923 [INFO] [OPTIMIZER] Initialized 13 variants
+2026-05-07 01:49:52,923 [INFO] [SCHEDULER] Started — polling every 10s
+2026-05-07 01:51:32,931 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 01:51:32,932 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=0 | attempts=0
+2026-05-07 01:51:32,932 [INFO] [OPTIMIZER] Selected variant step_0_B for step step_0_opener (alpha=1.00, beta=1.00)
+2026-05-07 01:51:32,933 [INFO] [AGENT] Sending opener to hIzDqdWWC458rzNA3LKg (variant=step_0_B, test=True)
+2026-05-07 01:51:36,757 [INFO] [SMS] Sending bubble 1/2: hey
+2026-05-07 01:51:39,836 [INFO] [SMS] Waiting 2s before bubble 2
+2026-05-07 01:51:41,837 [INFO] [SMS] Sending bubble 2/2: is this Alex
+2026-05-07 01:51:56,417 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 01:51:56,417 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=1 | attempts=0
+2026-05-07 01:51:56,417 [INFO] [AGENT] Sending follow-up #1 to hIzDqdWWC458rzNA3LKg
+2026-05-07 01:51:59,082 [INFO] [SMS] Sending bubble 1/1: wanted to make sure this got to you
+2026-05-07 01:52:14,039 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 01:52:14,039 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=1 | attempts=1
+2026-05-07 01:52:14,039 [INFO] [AGENT] Sending follow-up #2 to hIzDqdWWC458rzNA3LKg
+2026-05-07 01:52:15,233 [INFO] [WEBHOOK] Inbound payload received: {'contactId': 'hIzDqdWWC458rzNA3LKg', 'messageId': 'null', 'body': 'Yes', 'type': 'SMS'}
+2026-05-07 01:52:15,237 [INFO] [WEBHOOK] Cleared pending follow-ups for hIzDqdWWC458rzNA3LKg on inbound reply
+2026-05-07 01:52:17,238 [INFO] [WEBHOOK] Processing batched message for hIzDqdWWC458rzNA3LKg: 'Yes'
+2026-05-07 01:52:17,243 [INFO] [AGENT] Reset followup_attempts for hIzDqdWWC458rzNA3LKg on inbound reply
+2026-05-07 01:52:17,270 [INFO] [SMS] Sending bubble 1/1: still in the tree biz?
+2026-05-07 01:52:18,893 [INFO] HTTP Request: POST https://api.manus.im/api/llm-proxy/v1/chat/completions "HTTP/1.1 200 OK"
+2026-05-07 01:52:18,901 [INFO] [CLASSIFIER] 'Yes' -> confirmed_yes (0.9)
+2026-05-07 01:52:18,901 [INFO] [AGENT] hIzDqdWWC458rzNA3LKg | intent=confirmed_yes | sentiment=positive
+2026-05-07 01:52:18,906 [INFO] [OPTIMIZER] Selected variant step_1_B for step step_1_reintro (alpha=1.00, beta=1.00)
+2026-05-07 01:52:22,495 [INFO] [SMS] Sending bubble 1/2: this is alex from increase roas
+2026-05-07 01:52:25,637 [INFO] [SMS] Waiting 2s before bubble 2
+2026-05-07 01:52:27,638 [INFO] [SMS] Sending bubble 2/2: still in the tree business
+2026-05-07 01:52:39,012 [INFO] [WEBHOOK] Inbound payload received: {'contactId': 'hIzDqdWWC458rzNA3LKg', 'messageId': 'null', 'body': 'Yes I am', 'type': 'SMS'}
+2026-05-07 01:52:39,013 [INFO] [WEBHOOK] Already processed messageId=null — skipping
+2026-05-07 01:52:41,897 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 01:52:41,897 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=2 | attempts=1
+2026-05-07 01:52:41,897 [INFO] [AGENT] Sending follow-up #2 to hIzDqdWWC458rzNA3LKg
+2026-05-07 01:52:46,185 [INFO] [SMS] Sending bubble 1/1: still in the tree biz?
+2026-05-07 01:52:58,833 [INFO] [WEBHOOK] Inbound payload received: {'contactId': 'hIzDqdWWC458rzNA3LKg', 'messageId': 'null', 'body': 'Yes', 'type': 'SMS'}
+2026-05-07 01:52:58,834 [INFO] [WEBHOOK] Already processed messageId=null — skipping
+2026-05-07 01:53:00,825 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 01:53:00,825 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=2 | attempts=2
+2026-05-07 01:53:00,826 [INFO] [AGENT] Sending follow-up #3 to hIzDqdWWC458rzNA3LKg
+2026-05-07 01:53:03,814 [INFO] [SMS] Sending bubble 1/2: i will leave you alone after this
+2026-05-07 01:53:06,290 [INFO] [SMS] Waiting 2s before bubble 2
+2026-05-07 01:53:08,291 [INFO] [SMS] Sending bubble 2/2: just wanted to see if lead flow was something you 
+2026-05-07 01:53:22,438 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 01:53:22,438 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=2 | attempts=3
+2026-05-07 01:53:22,438 [INFO] [AGENT] Sending follow-up #4 to hIzDqdWWC458rzNA3LKg
+2026-05-07 01:53:25,361 [INFO] [SMS] Sending bubble 1/2: closing your file out
+2026-05-07 01:53:28,641 [INFO] [SMS] Waiting 2s before bubble 2
+2026-05-07 01:53:30,641 [INFO] [SMS] Sending bubble 2/2: if things change you know where to find me
+2026-05-07 01:55:20,205 [INFO] [WEBHOOK] Inbound payload received: {'contactId': 'hIzDqdWWC458rzNA3LKg', 'messageId': 'null', 'body': 'Huh?', 'type': 'SMS'}
+2026-05-07 01:55:20,206 [INFO] [WEBHOOK] Already processed messageId=null — skipping
+2026-05-07 02:01:41,187 [INFO] [OPTIMIZER] Initialized 13 variants
+2026-05-07 02:01:41,187 [INFO] [SCHEDULER] Started — polling every 10s
+2026-05-07 02:02:11,932 [INFO] [OPTIMIZER] Initialized 13 variants
+2026-05-07 02:02:21,192 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 02:02:21,193 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=0 | attempts=0
+2026-05-07 02:02:21,193 [INFO] [OPTIMIZER] Selected variant step_0_A for step step_0_opener (alpha=1.00, beta=1.00)
+2026-05-07 02:02:21,194 [INFO] [VALIDATOR] Cleaned: 'Alex?' -> 'alex?'
+2026-05-07 02:02:21,194 [INFO] [AGENT] Sending opener to hIzDqdWWC458rzNA3LKg (variant=step_0_A, test=True)
+2026-05-07 02:02:24,085 [INFO] [SMS] Sending bubble 1/2: alex?
+2026-05-07 02:02:26,840 [INFO] [SMS] Waiting 2s before bubble 2
+2026-05-07 02:02:28,840 [INFO] [SMS] Sending bubble 2/2: hey it's alex
+2026-05-07 02:02:43,317 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 02:02:43,317 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=1 | attempts=0
+2026-05-07 02:02:43,317 [INFO] [AGENT] Sending follow-up #1 to hIzDqdWWC458rzNA3LKg
+2026-05-07 02:02:46,107 [INFO] [SMS] Sending bubble 1/1: wanted to make sure this got to you
+2026-05-07 02:02:59,911 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 02:02:59,912 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=1 | attempts=1
+2026-05-07 02:02:59,912 [INFO] [AGENT] Sending follow-up #2 to hIzDqdWWC458rzNA3LKg
+2026-05-07 02:03:02,899 [INFO] [SMS] Sending bubble 1/1: still in the tree biz?
+2026-05-07 02:03:17,106 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 02:03:17,106 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=1 | attempts=2
+2026-05-07 02:03:17,106 [INFO] [AGENT] Sending follow-up #3 to hIzDqdWWC458rzNA3LKg
+2026-05-07 02:03:20,276 [INFO] [SMS] Sending bubble 1/2: i will leave you alone after this
+2026-05-07 02:03:23,038 [INFO] [SMS] Waiting 2s before bubble 2
+2026-05-07 02:03:25,039 [INFO] [SMS] Sending bubble 2/2: just wanted to see if lead flow was something you 
+2026-05-07 02:03:39,130 [INFO] [SCHEDULER] [TEST] Processing hIzDqdWWC458rzNA3LKg
+2026-05-07 02:03:39,130 [INFO] [SCHEDULER] Processing hIzDqdWWC458rzNA3LKg | step=1 | attempts=3
+2026-05-07 02:03:39,130 [INFO] [AGENT] Sending follow-up #4 to hIzDqdWWC458rzNA3LKg
+2026-05-07 02:03:42,154 [INFO] [SMS] Sending bubble 1/2: closing your file out
+2026-05-07 02:03:45,376 [INFO] [SMS] Waiting 2s before bubble 2
+2026-05-07 02:03:45,829 [INFO] [WEBHOOK] Inbound payload received: {'contactId': 'hIzDqdWWC458rzNA3LKg', 'messageId': 'null', 'body': 'Yo', 'type': 'SMS'}
+2026-05-07 02:03:45,832 [INFO] [WEBHOOK] Set last_inbound_at and cleared next_action_at for hIzDqdWWC458rzNA3LKg
+2026-05-07 02:03:47,376 [INFO] [SMS] Sending bubble 2/2: if things change you know where to find me
+2026-05-07 02:03:47,834 [INFO] [WEBHOOK] Processing batched message for hIzDqdWWC458rzNA3LKg: 'Yo'
+2026-05-07 02:03:47,839 [INFO] [AGENT] Reset followup_attempts for hIzDqdWWC458rzNA3LKg on inbound reply
+2026-05-07 02:03:49,373 [INFO] HTTP Request: POST https://api.manus.im/api/llm-proxy/v1/chat/completions "HTTP/1.1 200 OK"
+2026-05-07 02:03:49,378 [INFO] [CLASSIFIER] 'Yo' -> neutral_reply (0.6)
+2026-05-07 02:03:49,378 [INFO] [AGENT] hIzDqdWWC458rzNA3LKg | intent=neutral_reply | sentiment=neutral
+2026-05-07 02:03:49,381 [INFO] [OPTIMIZER] Selected variant step_1_A for step step_1_reintro (alpha=1.00, beta=1.00)
+2026-05-07 02:03:52,444 [INFO] [SMS] Sending bubble 1/2: we spoke a while back
+2026-05-07 02:03:55,000 [INFO] [SMS] Waiting 2s before bubble 2
+2026-05-07 02:03:57,000 [INFO] [SMS] Sending bubble 2/2: still in the tree biz?

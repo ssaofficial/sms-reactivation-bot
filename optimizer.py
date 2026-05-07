@@ -17,9 +17,13 @@ logger = logging.getLogger(__name__)
 
 
 def initialize_variants():
-    """Seed all variants from playbook into the bandit DB."""
+    """Seed all variants from playbook into the bandit DB.
+    Deletes any DB variants whose step+id combo is NOT in the current playbook
+    so stale variants from old playbook edits are never selected.
+    """
     sequence = get_sequence()
     all_variants = []
+    current_ids = set()
 
     for step_key, step_data in sequence.items():
         variants = step_data.get("variants", [])
@@ -30,6 +34,21 @@ def initialize_variants():
                 "variant_label": v["id"],
                 "message_template": str(v["bubbles"])
             })
+            current_ids.add(v["id"])
+
+    # Purge stale variants: delete any DB row whose variant_id is not in current playbook
+    if current_ids:
+        from database import get_conn
+        conn = get_conn()
+        placeholders = ",".join("?" for _ in current_ids)
+        deleted = conn.execute(
+            f"DELETE FROM bandit_variants WHERE id NOT IN ({placeholders})",
+            list(current_ids)
+        ).rowcount
+        conn.commit()
+        conn.close()
+        if deleted:
+            logger.info(f"[OPTIMIZER] Purged {deleted} stale bandit variants not in current playbook")
 
     if all_variants:
         init_bandit_variants(all_variants)

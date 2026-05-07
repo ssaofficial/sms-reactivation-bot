@@ -68,14 +68,21 @@
           "id": "step_1_A",
           "bubbles": [
             {"text": "we spoke a while back", "delay_seconds": 0},
-            {"text": "do you still have the tree company", "delay_seconds": 9}
+            {"text": "still in the tree biz?", "delay_seconds": 9}
           ]
         },
         {
           "id": "step_1_B",
           "bubbles": [
-            {"text": "this is alex from increase roas", "delay_seconds": 0},
-            {"text": "still in the tree business", "delay_seconds": 8}
+            {"text": "we talked a while back about your tree company", "delay_seconds": 0},
+            {"text": "you still running it?", "delay_seconds": 9}
+          ]
+        },
+        {
+          "id": "step_1_C",
+          "bubbles": [
+            {"text": "this is alex btw", "delay_seconds": 0},
+            {"text": "still in the tree business?", "delay_seconds": 9}
           ]
         }
       ]
@@ -155,23 +162,21 @@
     "followup_1": {
       "description": "No reply after 2 days.",
       "bubbles": [
-        {"text": "hey", "delay_seconds": 0},
-        {"text": "wanted to make sure this got to you", "delay_seconds": 10}
+        {"text": "wanted to make sure this got to you", "delay_seconds": 0}
       ]
     },
 
     "followup_2": {
       "description": "No reply after 4 days.",
       "bubbles": [
-        {"text": "still running the tree company", "delay_seconds": 0}
+        {"text": "still in the tree biz?", "delay_seconds": 0}
       ]
     },
 
     "followup_3": {
       "description": "No reply after 7 days.",
       "bubbles": [
-        {"text": "hey", "delay_seconds": 0},
-        {"text": "i will leave you alone after this", "delay_seconds": 8},
+        {"text": "i will leave you alone after this", "delay_seconds": 0},
         {"text": "just wanted to see if lead flow was something you were still trying to fix", "delay_seconds": 12}
       ]
     },

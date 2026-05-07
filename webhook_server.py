@@ -76,6 +76,24 @@ async def inbound_webhook(request: Request, background_tasks: BackgroundTasks):
     if message_id:
         mark_message_processed(message_id)
 
+    # CRITICAL: Set last_inbound_at and clear next_action_at IMMEDIATELY on inbound reply
+    # This prevents the race condition where follow-ups fire after a reply arrives.
+    # The scheduler checks last_inbound_at > last_outbound_at and skips if true.
+    try:
+        from database import set_last_inbound_at as _set_inbound
+        _set_inbound(contact_id)
+        logger.info(f"[WEBHOOK] Set last_inbound_at and cleared next_action_at for {contact_id}")
+    except Exception as e:
+        logger.warning(f"[WEBHOOK] Could not set last_inbound_at for {contact_id}: {e}")
+
+    # Determine batch window — test mode uses 2 seconds, live uses configured window
+    try:
+        from database import get_contact as _gc
+        _c = _gc(contact_id)
+        batch_window = 2 if (_c and _c.get('test_mode')) else INBOUND_BATCH_WINDOW
+    except Exception:
+        batch_window = INBOUND_BATCH_WINDOW
+
     # Add to buffer (handles rapid double-texts from same contact)
     with _buffer_lock:
         _inbound_buffer[contact_id].append({
@@ -88,18 +106,22 @@ async def inbound_webhook(request: Request, background_tasks: BackgroundTasks):
     background_tasks.add_task(
         _process_after_batch_window,
         contact_id=contact_id,
-        body=body
+        body=body,
+        batch_window=batch_window
     )
 
     return JSONResponse({"status": "queued", "contactId": contact_id})
 
 
-async def _process_after_batch_window(contact_id: str, body: str):
+async def _process_after_batch_window(contact_id: str, body: str, batch_window: float = None):
     """
     Wait for batch window, then process the most recent message.
     This prevents double-responses if a contact sends two messages quickly.
+    Test mode uses 2 seconds; live mode uses INBOUND_BATCH_WINDOW.
     """
-    await _async_sleep(INBOUND_BATCH_WINDOW)
+    if batch_window is None:
+        batch_window = INBOUND_BATCH_WINDOW
+    await _async_sleep(batch_window)
 
     with _buffer_lock:
         messages = _inbound_buffer.pop(contact_id, [])

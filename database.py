@@ -42,6 +42,10 @@ def init_db():
             locked INTEGER DEFAULT 0,
             -- 1 = being processed right now (prevents race conditions)
             locked_at REAL,
+            last_inbound_at REAL,
+            -- unix timestamp of most recent inbound reply (used to prevent follow-up race conditions)
+            last_outbound_at REAL,
+            -- unix timestamp of most recent outbound message sent
             created_at REAL DEFAULT (strftime('%s','now')),
             updated_at REAL DEFAULT (strftime('%s','now'))
         )
@@ -104,6 +108,18 @@ def init_db():
     """)
 
     conn.commit()
+
+    # Migration: add columns that may not exist in older DB versions
+    for col, default in [
+        ("last_inbound_at", "NULL"),
+        ("last_outbound_at", "NULL")
+    ]:
+        try:
+            conn.execute(f"ALTER TABLE contacts ADD COLUMN {col} REAL DEFAULT {default}")
+            conn.commit()
+        except Exception:
+            pass  # Column already exists
+
     conn.close()
     print("[DB] Tables initialized.")
 
@@ -185,6 +201,30 @@ def set_next_action(ghl_contact_id, next_action_at):
     conn.execute(
         "UPDATE contacts SET next_action_at=?, updated_at=? WHERE ghl_contact_id=?",
         (next_action_at, time.time(), ghl_contact_id)
+    )
+    conn.commit()
+    conn.close()
+
+
+def set_last_inbound_at(ghl_contact_id):
+    """Record timestamp of most recent inbound reply. Used to prevent follow-up race conditions."""
+    conn = get_conn()
+    now = time.time()
+    conn.execute(
+        "UPDATE contacts SET last_inbound_at=?, next_action_at=NULL, updated_at=? WHERE ghl_contact_id=?",
+        (now, now, ghl_contact_id)
+    )
+    conn.commit()
+    conn.close()
+
+
+def set_last_outbound_at(ghl_contact_id):
+    """Record timestamp of most recent outbound message sent."""
+    conn = get_conn()
+    now = time.time()
+    conn.execute(
+        "UPDATE contacts SET last_outbound_at=?, updated_at=? WHERE ghl_contact_id=?",
+        (now, now, ghl_contact_id)
     )
     conn.commit()
     conn.close()

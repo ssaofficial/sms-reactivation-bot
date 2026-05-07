@@ -99,9 +99,11 @@ def set_contact_dnd(contact_id: str, dnd: bool = True):
 
 def get_or_create_conversation(contact_id: str) -> str:
     """Get existing conversation ID or create one. Returns conversationId."""
-    result = _call("get_conversation", {"contactId": contact_id})
-    if result.get("id"):
-        return result["id"]
+    # Use search_conversations to find existing conversation
+    result = _call("search_conversations", {"contactId": contact_id, "limit": 1})
+    conversations = result.get("conversations", [])
+    if conversations:
+        return conversations[0].get("id")
     # Create new conversation
     created = _call("create_conversation", {"contactId": contact_id})
     return created.get("id") or created.get("conversationId")
@@ -115,12 +117,13 @@ def send_sms(contact_id: str, message: str, conversation_id: str = None) -> dict
     if not conversation_id:
         conversation_id = get_or_create_conversation(contact_id)
 
-    return _call("send_message", {
-        "type": "SMS",
+    params = {
         "contactId": contact_id,
-        "conversationId": conversation_id,
         "message": message
-    })
+    }
+    if conversation_id:
+        params["conversationId"] = conversation_id
+    return _call("send_sms", params)
 
 
 def send_sms_bubbles(contact_id: str, bubbles: list, test_mode: bool = False) -> list:

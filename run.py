@@ -134,7 +134,7 @@ def add_test_contact(phone: str, name: str = None):
 
     # Try to find contact in GHL first
     print(f"Looking up {phone} in GHL...")
-    contacts = search_contacts(phone=phone)
+    contacts = search_contacts(query=phone)
 
     if contacts:
         ghl_contact = contacts[0]

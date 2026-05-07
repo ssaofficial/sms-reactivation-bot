@@ -102,6 +102,23 @@ def handle_inbound(ghl_contact_id: str, inbound_text: str) -> bool:
         # STEP 3: Log the inbound message
         log_message(ghl_contact_id, "inbound", inbound_text)
 
+        # STEP 3b: Reset followup_attempts and reactivate if contact was marked lost
+        # (can happen if reply arrives mid-send of the final follow-up bubble)
+        from database import get_conn
+        _conn = get_conn()
+        current_status = contact.get("status", "active")
+        if current_status in ("lost", "not_interested"):
+            _conn.execute(
+                "UPDATE contacts SET followup_attempts=0, status='active' WHERE ghl_contact_id=?",
+                (ghl_contact_id,)
+            )
+            logger.info(f"[AGENT] Reactivated {ghl_contact_id} (was {current_status}) — they replied")
+        else:
+            _conn.execute("UPDATE contacts SET followup_attempts=0 WHERE ghl_contact_id=?", (ghl_contact_id,))
+        _conn.commit()
+        _conn.close()
+        logger.info(f"[AGENT] Reset followup_attempts for {ghl_contact_id} on inbound reply")
+
         # STEP 4: Get conversation history for context
         history = get_recent_messages(ghl_contact_id, limit=6)
 
@@ -173,6 +190,10 @@ def send_opener(ghl_contact_id: str, test_mode: bool = False):
     from optimizer import record_send
     record_send(variant["id"])
 
+    # Mark outbound timestamp (used by race condition guard in scheduler)
+    from database import set_last_outbound_at
+    set_last_outbound_at(ghl_contact_id)
+
     # Schedule follow-up if no reply
     delay = TEST_MODE_DELAY if test_mode else SEQUENCE_DELAYS["no_reply_attempt_1"]
     set_next_action(ghl_contact_id, time.time() + delay)
@@ -206,6 +227,9 @@ def send_followup(ghl_contact_id: str, attempt_number: int, test_mode: bool = Fa
     for bubble, resp in zip(bubbles, responses):
         msg_id = resp.get("messageId") if resp else None
         log_message(ghl_contact_id, "outbound", bubble["text"], ghl_message_id=msg_id)
+
+    from database import set_last_outbound_at
+    set_last_outbound_at(ghl_contact_id)
 
     increment_followup_attempts(ghl_contact_id)
 
@@ -274,6 +298,8 @@ def _send_reintro(contact: dict, test_mode: bool):
 
     from optimizer import record_send
     record_send(variant["id"])
+    from database import set_last_outbound_at
+    set_last_outbound_at(ghl_id)
 
     # Schedule qualifier delay
     delay = TEST_MODE_DELAY if test_mode else SEQUENCE_DELAYS["qualifier_delay"]
@@ -293,6 +319,8 @@ def _send_ai_curiosity(contact: dict, test_mode: bool):
 
     from optimizer import record_send
     record_send(variant["id"])
+    from database import set_last_outbound_at
+    set_last_outbound_at(ghl_id)
 
     delay = TEST_MODE_DELAY if test_mode else SEQUENCE_DELAYS["ai_curiosity_delay"]
     set_next_action(ghl_id, time.time() + delay)
@@ -312,6 +340,8 @@ def _send_ai_nurture(contact: dict, inbound_text: str, history: list, test_mode:
 
     from optimizer import record_send
     record_send(variant["id"])
+    from database import set_last_outbound_at
+    set_last_outbound_at(ghl_id)
 
     delay = TEST_MODE_DELAY if test_mode else SEQUENCE_DELAYS["next_day_followup"]
     set_next_action(ghl_id, time.time() + delay)
@@ -333,6 +363,8 @@ def _send_soft_close(contact: dict, test_mode: bool):
 
     from optimizer import record_send
     record_send(variant["id"])
+    from database import set_last_outbound_at
+    set_last_outbound_at(ghl_id)
 
 
 def _send_contextual_response(contact: dict, inbound_text: str,
@@ -394,6 +426,8 @@ Generate your response:"""
             responses = send_sms_bubbles(ghl_id, bubbles, test_mode=test_mode)
             for bubble, resp in zip(bubbles, responses):
                 log_message(ghl_id, "outbound", bubble["text"])
+            from database import set_last_outbound_at
+            set_last_outbound_at(ghl_id)
 
     except Exception as e:
         logger.error(f"[AGENT] LLM contextual response error: {e}")
@@ -429,6 +463,9 @@ def _handle_objection(contact: dict, intent: str, test_mode: bool):
     responses = send_sms_bubbles(ghl_id, bubbles, test_mode=test_mode)
     for bubble, resp in zip(bubbles, responses):
         log_message(ghl_id, "outbound", bubble["text"])
+
+    from database import set_last_outbound_at
+    set_last_outbound_at(ghl_id)
 
     # Add objection tag in GHL
     add_tag(ghl_id, f"objection_{handler_key}")
