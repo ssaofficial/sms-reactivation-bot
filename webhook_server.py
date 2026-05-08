@@ -199,20 +199,27 @@ async def performance_report():
 
 @app.post("/admin/add_contact")
 async def admin_add_contact(request: Request):
-    """Add a contact to the bot queue (for testing or manual import)."""
+    """Add a contact to the bot queue (for testing or manual import).
+    
+    If the contact already has a conversation in GHL, reads the history and
+    resumes at the correct sequence step instead of restarting from step 0.
+    """
     import time
-    from database import upsert_contact, set_next_action
+    from database import upsert_contact, set_next_action, get_contact
     from config import GHL_LOCATION_ID
+    from ghl_client import get_conversation_messages
     payload = await request.json()
     ghl_contact_id = payload.get("ghl_contact_id")
     phone = payload.get("phone")
     first_name = payload.get("first_name", "")
     test_mode = payload.get("test_mode", False)
     location_id = payload.get("location_id") or GHL_LOCATION_ID
-    # delay_seconds: how many seconds until the opener fires (default 5 for test, 10 for live)
+    # delay_seconds: how many seconds until the next action fires
     delay_seconds = payload.get("delay_seconds", 5 if test_mode else 10)
     if not ghl_contact_id or not phone:
         return {"error": "ghl_contact_id and phone are required"}
+
+    # Upsert the contact (preserves existing step/status on conflict)
     upsert_contact(
         ghl_contact_id=ghl_contact_id,
         phone=phone,
@@ -220,9 +227,102 @@ async def admin_add_contact(request: Request):
         location_id=location_id,
         test_mode=1 if test_mode else 0
     )
-    # Schedule the opener to fire immediately (or after delay_seconds)
-    set_next_action(ghl_contact_id, time.time() + delay_seconds)
-    return {"status": "ok", "ghl_contact_id": ghl_contact_id, "phone": phone, "test_mode": test_mode, "fires_in_seconds": delay_seconds}
+
+    # Check if this contact already has a conversation in GHL
+    # If so, infer the correct sequence step from history instead of restarting
+    inferred_step = 0
+    action = "send_opener"
+    try:
+        messages = get_conversation_messages(ghl_contact_id, limit=20)
+        if messages:
+            # Build a simple summary of the conversation for the LLM
+            from openai import OpenAI
+            from config import OPENAI_API_KEY, CLASSIFIER_MODEL
+            oai = OpenAI(api_key=OPENAI_API_KEY)
+            convo_lines = []
+            for m in messages[-15:]:
+                direction = "THEM" if m.get("direction") == "inbound" else "BOT"
+                body = m.get("body", "").strip()
+                if body:
+                    convo_lines.append(f"{direction}: {body}")
+            convo_text = "\n".join(convo_lines)
+
+            system_prompt = """You are analyzing an SMS conversation between a bot and a tree service business owner.
+
+The bot's sequence has these steps:
+- step 0: No opener sent yet — bot should send the opener
+- step 1: Opener sent, waiting for reply
+- step 2: Contact replied to opener, bot sent reintro/qualifier, waiting for qualifier reply
+- step 3: Contact confirmed tree biz, bot scheduled AI curiosity message
+- step 4: AI curiosity sent, waiting for reply
+- step 5: Contact replied to AI curiosity, bot sent nurture/social proof, scheduled soft close
+- step 6: Soft close sent, contact replied — bot is in LLM-driven conversation
+- step 7+: Deep LLM conversation, trying to book a call
+
+Based on the conversation below, return a JSON object:
+{
+  "step": <integer 0-7>,
+  "action": "send_opener" | "wait_for_reply" | "resume_llm" | "already_lost",
+  "reason": "<one sentence explaining why>"
+}
+
+Rules:
+- If no messages exist or only a bot opener with no reply: step=1, action=wait_for_reply
+- If contact has replied and conversation is ongoing: determine step from context
+- If contact said stop/unsubscribe/not interested: action=already_lost
+- If conversation is deep (multiple back-and-forths): step=7, action=resume_llm"""
+
+            resp = oai.chat.completions.create(
+                model=CLASSIFIER_MODEL,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": f"Conversation:\n{convo_text}"}
+                ],
+                max_tokens=150,
+                temperature=0
+            )
+            import json as _json
+            result = _json.loads(resp.choices[0].message.content.strip())
+            inferred_step = result.get("step", 0)
+            action = result.get("action", "send_opener")
+            logger.info(f"[ADD_CONTACT] {ghl_contact_id} | inferred step={inferred_step} action={action} | {result.get('reason','')}")
+
+            # Update the contact's step in DB to match inferred state
+            if inferred_step > 0:
+                import sqlite3
+                from database import get_conn
+                conn = get_conn()
+                conn.execute(
+                    "UPDATE contacts SET sequence_step=? WHERE ghl_contact_id=?",
+                    (inferred_step, ghl_contact_id)
+                )
+                conn.commit()
+                conn.close()
+
+    except Exception as e:
+        logger.warning(f"[ADD_CONTACT] Could not infer step for {ghl_contact_id}: {e}")
+        inferred_step = 0
+        action = "send_opener"
+
+    # Decide what to do next
+    if action == "already_lost":
+        from database import update_contact_status
+        update_contact_status(ghl_contact_id, "lost")
+        return {"status": "skipped", "reason": "contact previously opted out", "ghl_contact_id": ghl_contact_id}
+    elif action == "wait_for_reply":
+        # Opener already sent — just wait, don't reschedule
+        return {"status": "ok", "ghl_contact_id": ghl_contact_id, "phone": phone,
+                "test_mode": test_mode, "action": "waiting_for_reply", "step": inferred_step}
+    elif action == "resume_llm":
+        # Deep in conversation — set next_action_at so scheduler can handle follow-up if no reply
+        set_next_action(ghl_contact_id, time.time() + delay_seconds)
+        return {"status": "ok", "ghl_contact_id": ghl_contact_id, "phone": phone,
+                "test_mode": test_mode, "action": "resume_llm", "step": inferred_step}
+    else:
+        # send_opener (step 0, no prior conversation)
+        set_next_action(ghl_contact_id, time.time() + delay_seconds)
+        return {"status": "ok", "ghl_contact_id": ghl_contact_id, "phone": phone,
+                "test_mode": test_mode, "fires_in_seconds": delay_seconds, "action": "send_opener"}
 
 
 def start_webhook_server():
