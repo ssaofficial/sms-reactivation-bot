@@ -314,8 +314,11 @@ Rules:
         return {"status": "ok", "ghl_contact_id": ghl_contact_id, "phone": phone,
                 "test_mode": test_mode, "action": "waiting_for_reply", "step": inferred_step}
     elif action == "resume_llm":
-        # Deep in conversation — set next_action_at so scheduler can handle follow-up if no reply
-        set_next_action(ghl_contact_id, time.time() + delay_seconds)
+        # Deep in conversation — do NOT set next_action_at here.
+        # The scheduler must not re-fire timed sequence messages for contacts already in active LLM conversation.
+        # The inbound webhook handles everything from this point forward.
+        # Set next_action_at to far future (24h) as a safety net for dead conversations only.
+        set_next_action(ghl_contact_id, time.time() + 86400)
         return {"status": "ok", "ghl_contact_id": ghl_contact_id, "phone": phone,
                 "test_mode": test_mode, "action": "resume_llm", "step": inferred_step}
     else:
