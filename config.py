@@ -6,7 +6,7 @@ load_dotenv()
 # GHL Bridge
 GHL_BRIDGE_URL = os.getenv("GHL_BRIDGE_URL", "https://n8n-ghl-agent.onrender.com/webhook/manus-ghl-bridge")
 GHL_BEARER_TOKEN = os.getenv("GHL_BEARER_TOKEN", "Manus-GHL-20261998313-Secure!")
-GHL_LOCATION_ID = os.getenv("GHL_LOCATION_ID", "DGJ1WPh3wDrNxm6D47Gl")
+GHL_LOCATION_ID = os.getenv("GHL_LOCATION_ID", "TYE7dsdNbVLbwVBPjy4p")
 
 # OpenAI
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
