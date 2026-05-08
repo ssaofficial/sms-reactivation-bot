@@ -247,9 +247,9 @@
     "tried_ads_before": {
       "intent_keywords": ["tried ads", "waste of money", "didn't work", "facebook ads", "google ads", "burned"],
       "bubbles": [
-        {"text": "yeah i hear that a lot honestly", "delay_seconds": 0},
-        {"text": "most guys running ads for tree companies are doing it completely wrong", "delay_seconds": 12},
-        {"text": "what were you spending when you tried it", "delay_seconds": 9}
+        {"text": "i get it. most guys in your space have tried ads and got nothing", "delay_seconds": 0},
+        {"text": "the difference with us is we only work with tree companies and our ai calls your leads within 60 seconds so you are not chasing anyone", "delay_seconds": 13},
+        {"text": "rodney spent $470 and closed a $13,600 job. worth a 15 min call to see if it makes sense for you?", "delay_seconds": 10}
       ]
     },
     "too_busy": {
@@ -263,9 +263,8 @@
     "how_much_does_it_cost": {
       "intent_keywords": ["how much", "what does it cost", "price", "pricing", "cost", "charge", "pay"],
       "bubbles": [
-        {"text": "good question", "delay_seconds": 0},
-        {"text": "the pricing depends on your area and what you are trying to do", "delay_seconds": 10},
-        {"text": "easier to walk you through it on a quick call. when is a good 20 mins for you", "delay_seconds": 9}
+        {"text": "most guys start around $1,500 a month", "delay_seconds": 0},
+        {"text": "easier to walk through exactly what that gets you on a quick call. when is a good 20 mins for you", "delay_seconds": 10}
       ]
     },
     "already_have_marketing": {
